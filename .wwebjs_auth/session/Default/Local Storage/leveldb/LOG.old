@@ -1,6 +1,0 @@
-2025/03/12-22:10:04.432 4664 Reusing MANIFEST D:\SKRIPSI\server\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
-2025/03/12-22:10:04.438 4664 Recovering log #220
-2025/03/12-22:10:04.443 4664 Reusing old log D:\SKRIPSI\server\.wwebjs_auth\session\Default\Local Storage\leveldb/000220.log 
-2025/03/13-01:40:28.657 3fd4 Level-0 table #225: started
-2025/03/13-01:40:28.680 3fd4 Level-0 table #225: 13143 bytes OK
-2025/03/13-01:40:28.698 3fd4 Delete type=0 #220
