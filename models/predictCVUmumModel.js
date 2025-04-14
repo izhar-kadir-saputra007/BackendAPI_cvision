@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from '../config/dataBase.js';
 
-const PredicCVUmum = db.define("PredicCVUmum", {
+const PredicCVUmum = db.define("prediccvumum", {
   id: {
     type: DataTypes.INTEGER,
     allowNull: true,

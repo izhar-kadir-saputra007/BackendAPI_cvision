@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../config/dataBase.js";
 
-const JawabanPsikotes = db.define('JawabanPsikotes', {
+const JawabanPsikotes = db.define('jawabanpsikotes', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -21,7 +21,7 @@ const JawabanPsikotes = db.define('JawabanPsikotes', {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'soalPsikotes',
+        model: 'soalpsikotes',
         key: 'id'
       },
       onDelete: 'CASCADE',

@@ -4,7 +4,7 @@ import JenisSoal from "./jenisSoalModel.js";
 import User from "./userModel.js";
 import Lamaran from "./lamaranModel.js";
 
-const RiwayatPsikotes = db.define('RiwayatPsikotes', {
+const RiwayatPsikotes = db.define('riwayatpsikotes', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,

@@ -27,6 +27,11 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Route root langsung di sini
+app.get("/", (req, res) => {
+    res.send("🎉 Server Express API berjalan lancar!");
+  });
+
 // Routes
 app.use(router);
 app.use(routers);
@@ -39,10 +44,12 @@ const startServer = async () => {
         
         // await db.sync({alter: true});
         console.log("Database sudah terhubung dan telah di-sync.");
+ 
         const PORT = process.env.PORT || 3000; 
         app.listen(PORT, () => {
             console.log(`Express server berjalan di port ${PORT}`);
         });
+
     } catch (error) {
         console.error("Error saat menghubungkan ke database:", error);
         process.exit(1);

@@ -39,7 +39,7 @@ export const predictCVUmum = async (req, res) => {
 
    
 
-    const flaskResponse = await axios.post("http://localhost:5000/api/predict_umum", formData, {
+    const flaskResponse = await axios.post("https://5408-36-90-138-218.ngrok-free.app/api/predict_umum", formData, {
       headers: formData.getHeaders(),
     });
 

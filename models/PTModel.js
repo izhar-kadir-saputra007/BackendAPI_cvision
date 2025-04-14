@@ -6,23 +6,18 @@ const PT = db.define('PT', {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-      },
-      namaPT: {
+    },
+    namaPT: {
         type: DataTypes.STRING(100),
         allowNull: false,
-      },
-      alamat: {
+    },
+    alamat: {
         type: DataTypes.STRING(255),
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-        onUpdate: DataTypes.NOW,
-      },
-})
+    },
+    
+}, {
+    tableName: 'pts', // Pastikan nama tabel sesuai dengan yang ada di database
+    timestamps: false // Nonaktifkan fitur timestamps otomatis
+});
 
 export default PT;

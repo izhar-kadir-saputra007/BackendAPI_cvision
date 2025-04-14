@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from '../config/dataBase.js';
 
-const soalPsikotes = db.define('soalPsikotes', {
+const soalPsikotes = db.define('soalpsikotes', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -28,6 +28,9 @@ const soalPsikotes = db.define('soalPsikotes', {
       defaultValue: DataTypes.NOW,
       onUpdate: DataTypes.NOW,
     },
+  }, {
+    tableName: 'soalpsikotes', // Pastikan nama tabel sesuai dengan yang ada di database
+    timestamps: false, // Nonaktifkan fitur timestamps otomatis
   });
 
   export default soalPsikotes;

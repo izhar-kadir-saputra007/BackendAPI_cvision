@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import db from '../config/dataBase.js';
 import UserModel from './userModel.js'; // Import UserModel
 
-const HasilPsicotest = db.define('HasilPsicotest', {
+const HasilPsicotest = db.define('hasilpsicotest', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
