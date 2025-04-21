@@ -20,7 +20,6 @@ const JenisSoal = db.define('jenissoal', {
     namaJenis: {
       type: DataTypes.STRING(50),
       allowNull: false,
-      unique: true,
     },
     deskripsi: {
       type: DataTypes.TEXT,

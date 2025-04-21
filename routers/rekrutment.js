@@ -8,7 +8,7 @@ import isPremium from "../middleware/isPremium.js";
 
 import {createJenisSoalAdminMaster,createSoalPsikotesAdminMaster, getSoalPsikotesByJenisSoalId, getJenisSoalByUserId, submitBulkJawabanPsikotes, getTotalSkorUser} from "../controller/adminMaster/soalPsikotest.js"
 
-import { createJenisSoal, createSoalPsikotes, } from "../controller/rekrutmen/Admin.js/soalPsikotes.js";
+import { createJenisSoal, createSoalPsikotes, getAllJenisSoal, deleteJenisSoal, getSoalByJenisSoal} from "../controller/rekrutmen/Admin.js/soalPsikotes.js";
 import { registerAdminPT, verifyEmail} from "../controller/rekrutmen/Admin.js/user.js";
 import { createLowongan, addJenisSoalToLowongan,getLowonganForAdminPT, getAllLowongan, getPelamarByPT, getUsersByLowongan } from "../controller/rekrutmen/Admin.js/lowongan.js";
 import { createPayment, handlePaymentNotification, checkPaymentStatus } from "../controller/rekrutmen/Admin.js/transaksi.js";
@@ -24,10 +24,7 @@ const routers = express.Router();
 
 router.get("/api/validateToken", authenticate, validateToken);
 
-// Endpoint untuk membuat jenis soal oleh Admin PT
-routers.post('/api/jenis-soal', authenticateAdminPT, createJenisSoal);
-routers.post('/api/jenis-soal/:jenisSoalId', authenticateAdminPT, createSoalPsikotes);
-
+//admin master
 // Endpoint untuk membuat jenis soal oleh Admin master
 routers.post('/api/createJenisSoalAdminMaster', isAdmin, createJenisSoalAdminMaster);
 routers.post('/api/createSoalPsikotesAdminMaster/:jenisSoalId', isAdmin, createSoalPsikotesAdminMaster);
@@ -35,6 +32,14 @@ routers.get('/api/getSoalPsikotesByJenisSoalId/:jenisSoalId',authenticate, getSo
 routers.get('/api/getJenisSoalByUserId',isPremium, getJenisSoalByUserId);
 routers.post('/api/submitBulkJawabanPsikotes/:jenisSoalId/:lamaranId?',authenticate, submitBulkJawabanPsikotes);
 routers.get('/api/getTotalSkorUserPremium',isPremium, getTotalSkorUser);
+
+//admin PT
+// Endpoint untuk membuat jenis soal oleh Admin PT
+routers.post('/api/jenis-soal', authenticateAdminPT, createJenisSoal);
+routers.post('/api/soal-psikotes/:jenisSoalId', authenticateAdminPT, createSoalPsikotes);
+routers.get('/api/getAllJenisSoal', authenticateAdminPT, getAllJenisSoal);
+routers.get('/api/getSoalByJenisSoalAdmin/:jenisSoalId', authenticateAdminPT, getSoalByJenisSoal);
+routers.delete('/api/deleteJenisSoal/:jenisSoalId', authenticateAdminPT, deleteJenisSoal);
 
 //soal psikotes untuk calon karyawan
 routers.get('/api/getSoalPsikotesForCalonKaryawan/:lowonganId/psikotes', authenticate, getSoalPsikotesForCalonKaryawan);
