@@ -122,7 +122,7 @@ export const Login = async (req, res) => {
 
         // Membuat refresh token
         const refreshToken = jwt.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET, {
-            expiresIn: '1d'
+            expiresIn: '30d'
         });
 
         // Mengupdate refresh_token di database

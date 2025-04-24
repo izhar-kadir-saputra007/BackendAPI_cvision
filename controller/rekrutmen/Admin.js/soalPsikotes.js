@@ -107,6 +107,33 @@ export const getAllJenisSoal = async (req, res) => {
   }
 };
 
+export const getAllJenisSoalWithSoal = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const jenisSoalList = await JenisSoal.findAll({
+      where: { userId },
+      attributes: ['id', 'namaJenis', 'deskripsi', 'createdAt'],
+      include: [{
+        model: SoalPsikotes,
+        attributes: [],
+        required: true
+      }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    return res.status(200).json({
+      message: 'Berhasil mendapatkan jenis soal yang memiliki soal psikotes',
+      data: jenisSoalList,
+    });
+  } catch (error) {
+    console.error('Error getting jenis soal:', error);
+    return res.status(500).json({
+      message: 'Terjadi kesalahan saat mengambil data jenis soal',
+    });
+  }
+};
+
 // Fungsi untuk mendapatkan soal berdasarkan jenis soal
 export const getSoalByJenisSoal = async (req, res) => {
   try {

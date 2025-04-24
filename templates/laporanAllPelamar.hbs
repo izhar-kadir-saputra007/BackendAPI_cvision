@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .header { 
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+    .title { 
+      font-size: 24px; 
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    .summary {
+      background: #f8f9fa;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    .pelamar-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .pelamar-table th {
+      background-color: #3498db;
+      color: white;
+      padding: 10px;
+      text-align: left;
+    }
+    .pelamar-table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    .pelamar-table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .status-menunggu { color: #f39c12; }
+    .status-diterima { color: #27ae60; }
+    .status-ditolak { color: #e74c3c; }
+    .footer {
+      margin-top: 30px;
+      text-align: right;
+      font-size: 12px;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+  <div class="title">Laporan Pelamar</div>
+  <div class="subtitle">{{perusahaan}}</div> 
+</div>
+
+  <div class="summary">
+    Total Pelamar: <strong>{{totalPelamar}}</strong><br>
+    Dicetak pada: {{generatedAt}}
+  </div>
+
+  <table class="pelamar-table">
+    <thead>
+      <tr>
+        <th width="5%">No</th>
+        <th width="15%">Nama</th>
+        <th width="20%">Email</th>
+        <th width="20%">Lowongan</th>
+        <th width="15%">Perusahaan</th>
+        <th width="10%">Status</th>
+        <th width="15%">Tanggal Daftar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each pelamar}}
+      <tr>
+        <td>{{this.no}}</td>
+        <td>{{this.nama}}</td>
+        <td>{{this.email}}</td>
+        <td>{{this.lowongan}}</td>
+        <td>{{this.perusahaan}}</td>
+        <td class="status-{{this.status}}">{{this.status}}</td>
+        <td>{{this.tanggalDaftar}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    © {{year}} Sistem Rekrutmen - Dicetak otomatis
+  </div>
+
+  <script>
+    // Untuk menambahkan tahun dinamis
+    document.querySelector('.footer').innerHTML = 
+      document.querySelector('.footer').innerHTML.replace('{{year}}', new Date().getFullYear());
+  </script>
+</body>
+</html>

@@ -85,27 +85,49 @@ export const getJenisSoalByLamaranId = async (req, res) => {
   const { lamaranId } = req.params;
 
   try {
-      // Cek apakah lamaran ada
-      const lamaran = await Lamaran.findByPk(lamaranId);
-      if (!lamaran) {
-          return res.status(404).json({ message: "Lamaran tidak ditemukan." });
-      }
+    // 1. Cek apakah lamaran ada
+    const lamaran = await Lamaran.findByPk(lamaranId);
+    if (!lamaran) {
+      return res.status(404).json({ message: "Lamaran tidak ditemukan." });
+    }
 
-      // Ambil jenis soal berdasarkan lowonganId dari lamaran
-      const jenisSoalList = await LowonganJenisSoal.findAll({
-          where: { lowonganId: lamaran.lowonganId },
-          include: [{
-              model: JenisSoal,
-              attributes: ['id', 'namaJenis'] // Ambil data jenis soal
-          }]
-      });
+    // 2. Ambil data lowongan_jenis_soal beserta jenis_soal
+    const lowonganJenisSoals = await LowonganJenisSoal.findAll({
+      where: { lowonganId: lamaran.lowonganId },
+      include: [{
+        model: JenisSoal,
+        attributes: ['id', 'namaJenis'],
+        required: true
+      }]
+    });
 
-      return res.status(200).json({
-          message: "Data jenis soal berhasil diambil.",
-          data: jenisSoalList.map(item => item.JenisSoal)
+    // 3. Format data response - menggunakan lowercase 'jenissoal'
+    const data = lowonganJenisSoals.map(item => {
+      // Akses relasi melalui properti lowercase
+      const jenisSoal = item.jenissoal;
+      
+      return {
+        id: jenisSoal.id,
+        namaJenis: jenisSoal.namaJenis
+      };
+    });
+
+    if (data.length === 0) {
+      return res.status(404).json({ 
+        message: "Tidak ada jenis soal yang ditemukan untuk lowongan ini." 
       });
+    }
+
+    return res.status(200).json({
+      message: "Data jenis soal berhasil diambil.",
+      data: data
+    });
+
   } catch (error) {
-      console.error("Error fetching jenis soal:", error);
-      return res.status(500).json({ message: "Terjadi kesalahan saat mengambil data jenis soal." });
+    console.error("Error fetching jenis soal:", error);
+    return res.status(500).json({ 
+      message: "Terjadi kesalahan saat mengambil data jenis soal.",
+      error: error.message
+    });
   }
 };

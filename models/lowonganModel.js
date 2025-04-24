@@ -21,6 +21,10 @@ const Lowongan = db.define('lowongan', {
     tanggalTutup: {
       type: DataTypes.DATE,
     },
+    status: {
+      type: DataTypes.ENUM('active', 'unactive'),
+      defaultValue: 'unactive',
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -31,8 +35,8 @@ const Lowongan = db.define('lowongan', {
       onUpdate: DataTypes.NOW,
     },
   }, {
-    tableName: 'lowongans', // Pastikan nama tabel sesuai dengan yang ada di database 
-    timestamps: false, // Nonaktifkan fitur timestamps otomatis
+    tableName: 'lowongans',
+    timestamps: false, 
   });
 
   export default Lowongan;
