@@ -238,67 +238,6 @@ export const getUsersByProbability = async (req, res) => {
 };
 
 
-// API untuk mengrim pesan kepada user
-import twilio from 'twilio';
-
-const accountSid = 'AC257d2aedc9ff3ce5e24c15a05d398f06'; // Ganti dengan SID Akun Twilio Anda
-const authToken = '76829cdf1012527715984c166a53582e'; // Ganti dengan Token Auth Twilio Anda
-const client = twilio(accountSid, authToken);
-
-export const sendWhatsAppMessage = async (req, res) => {
-    const { userId } = req.params;
-
-    try {
-        const user = await Users.findOne({
-            where: { id: userId },
-            include: [
-                {
-                    model: Resume,
-                    as: 'resumes',
-                    attributes: ['probability', 'predicted_category', 'upload_date']
-                },
-                {
-                    model: HasilPsicotest,
-                    as: 'hasilPsikotests',
-                    attributes: ['totalScore', 'date']
-                }
-            ]
-        });
-
-        if (!user) {
-            return res.status(404).json({ msg: 'User tidak ditemukan' });
-        }
-
-        const phoneNumber = user.phoneNumber;
-        if (!phoneNumber) {
-            return res.status(400).json({ msg: 'Nomor telepon tidak ditemukan pada pengguna' });
-        }
-
-        // Verifikasi nomor telepon sebelum mengirim pesan
-        try {
-            const lookup = await client.lookups.phoneNumbers(phoneNumber).fetch();
-            console.log('Nomor Valid:', lookup.phoneNumber);
-        } catch (error) {
-            console.error('Nomor telepon tidak valid:', error);
-            return res.status(400).json({ msg: 'Nomor telepon tidak valid', error: error.message });
-        }
-
-        const message = `Halo ${user.name}!\nBerikut adalah hasil Seleksi Anda:\n\nHasil prediksi CV:\n- Posisi Sebagai: ${user.resumes[0]?.predicted_category || 'Tidak ada posisi yang cocok'}\n- Probabilitas: ${user.resumes[0]?.probability || 'Tidak ada hasil prediksi CV'}\n- Tanggal Upload: ${user.resumes[0]?.upload_date || 'Tidak ada tanggal'}\n\nHasil Psikotes:\n- Skor: ${user.hasilPsikotests[0]?.totalScore || 'Belum ada skor'}\n- Tanggal Tes: ${user.hasilPsikotests[0]?.date || 'Tidak ada tanggal'}`;
-
-        await client.messages.create({
-            from: 'whatsapp:+14155238886',
-            body: message,
-            to: `whatsapp:${phoneNumber}`
-        });
-
-        console.log('Pesan berhasil dikirim!');
-        res.status(200).json({ msg: 'Pesan berhasil dikirim!' });
-    } catch (error) {
-        console.error('Gagal mengirim pesan:', error);
-        res.status(500).json({ msg: 'Gagal mengirim pesan', error: error.message });
-    }
-};
-
 
 // Fungsi untuk meminta reset password
 export const forgotPassword = async (req, res) => {

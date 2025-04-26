@@ -14,38 +14,40 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export const createLowongan = async (req, res) => {
-    const { judul, deskripsi, tanggalTutup } = req.body;
-    const { ptId } = req.user;
-  
-    try {
-      // Validasi input
-      if (!judul || !deskripsi || !tanggalTutup) {
-        return res.status(400).json({ message: 'Judul, deskripsi, dan tanggal tutup harus diisi.' });
-      }
-  
-      // Cek apakah PT ada
-      const pt = await PTModel.findByPk(ptId);
-      if (!pt) {
-        return res.status(404).json({ message: 'PT tidak ditemukan.' });
-      }
-  
-      // Buat lowongan
-      const newLowongan = await Lowongan.create({
-        judul,
-        deskripsi,
-        tanggalTutup,
-        ptId,
-      });
-  
-      return res.status(201).json({
-        message: 'Lowongan berhasil dibuat.',
-        data: newLowongan,
-      });
-    } catch (error) {
-      console.error('Error creating lowongan:', error);
-      return res.status(500).json({ message: 'Terjadi kesalahan saat membuat lowongan.' });
+  const { judul, deskripsi, tanggalTutup, persyaratan } = req.body; 
+  const { ptId } = req.user;
+
+  try {
+    // Validasi input dasar
+    if (!judul || !deskripsi || !tanggalTutup || !persyaratan) {
+      return res.status(400).json({ message: 'Judul, deskripsi, dan tanggal tutup harus diisi.' });
     }
-  };
+
+
+    // Cek apakah PT ada
+    const pt = await PTModel.findByPk(ptId);
+    if (!pt) {
+      return res.status(404).json({ message: 'PT tidak ditemukan.' });
+    }
+
+    // Buat lowongan dengan persyaratan
+    const newLowongan = await Lowongan.create({
+      judul,
+      deskripsi,
+      persyaratan,    
+      tanggalTutup,
+      ptId,
+    });
+
+    return res.status(201).json({
+      message: 'Lowongan berhasil dibuat.',
+      data: newLowongan,
+    });
+  } catch (error) {
+    console.error('Error creating lowongan:', error);
+    return res.status(500).json({ message: 'Terjadi kesalahan saat membuat lowongan.' });
+  }
+};
 
 
   // Menambahkan jenis soal ke lowongan

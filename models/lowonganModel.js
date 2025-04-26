@@ -21,6 +21,10 @@ const Lowongan = db.define('lowongan', {
     tanggalTutup: {
       type: DataTypes.DATE,
     },
+    persyaratan: {              
+      type: DataTypes.TEXT,
+      allowNull: true,           
+    },
     status: {
       type: DataTypes.ENUM('active', 'unactive'),
       defaultValue: 'unactive',

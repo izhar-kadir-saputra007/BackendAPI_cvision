@@ -363,7 +363,7 @@ export const getTotalSkorUser = async (req, res) => {
             // Format hasilnya
             groupedData[jenisSoalId] = totalSkorData.map((riwayat) => ({
                 jenisSoalId: riwayat.jenisSoalId,
-                namaJenisSoal: riwayat.JenisSoal ? riwayat.JenisSoal.namaJenis : 'Jenis Soal Tidak Ditemukan',
+                namaJenisSoal: riwayat.jenissoal ? riwayat.jenissoal.namaJenis : 'Jenis Soal Tidak Ditemukan',
                 totalSkor: riwayat.totalSkor,
                 createdAt: riwayat.createdAt,
             }));
