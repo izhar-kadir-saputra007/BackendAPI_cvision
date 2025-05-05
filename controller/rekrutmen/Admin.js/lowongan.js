@@ -4,7 +4,10 @@ import JenisSoal from "../../../models/jenisSoalModel.js";
 import LowonganJenisSoal from "../../../models/lowonganJenisSoalModel.js";
 import Lamaran from "../../../models/lamaranModel.js";
 import UserModel from "../../../models/userModel.js";
+import Resume from "../../../models/Resume.js";
+import RiwayatPsikotes from "../../../models/riwayatPsikotesModel.js";
 import sequelize from "../../../config/dataBase.js";
+import calonKaryawan from "../../../models/calonKaryawanModel.js";
 import { Op } from "sequelize";
 
 import puppeteer from 'puppeteer';
@@ -193,51 +196,135 @@ export const updateStatusLowongan = async (req, res) => {
   }
 };
 
-  export const getPelamarByPT = async (req, res) => {
-    const { ptId } = req.user; // Ambil ptId dari user yang login (Admin PT)
-  
-    try {
-      // Cari semua lowongan yang terkait dengan PT tersebut
-      const lowonganList = await Lowongan.findAll({
-        where: { ptId },
-        attributes: ["id"], // Ambil hanya id lowongan
-      });
-  
-      // Ekstrak id lowongan
-      const lowonganIds = lowonganList.map((lowongan) => lowongan.id);
-  
-      // Cari semua lamaran yang terkait dengan lowongan tersebut
-      const pelamarList = await Lamaran.findAll({
-        where: { lowonganId: lowonganIds },
-        attributes: ["status"], // Ambil hanya id lamaran
-        include: [
-          {
-            model: UserModel, 
-            attributes: ["id", "name", "email"], 
-          },
-          {
-            model: Lowongan, 
-            attributes: ["judul"], 
-            include: [
-              {
-                model: PTModel, 
-                attributes: ["namaPT"],
-              },
-            ],
-          },
-        ],
-      });
-  
-      return res.status(200).json({
-        message: "Data pelamar berhasil diambil.",
-        data: pelamarList,
-      });
-    } catch (error) {
-      console.error("Error fetching pelamar data:", error);
-      return res.status(500).json({ message: "Terjadi kesalahan saat mengambil data pelamar." });
-    }
-  };
+export const getPelamarByPT = async (req, res) => {
+  const { ptId } = req.user;
 
+  try {
+      // 1. Get all job listings with jenis soal in one query
+      const pelamarList = await Lamaran.findAll({
+          where: { '$lowongan.ptId$': ptId }, // Filter langsung di query utama
+          attributes: ["id", "status", "isFinishTest", "createdAt", "resumeId", "lowonganId"],
+          include: [
+              {
+                  model: Lowongan,
+                  as: 'lowongan',
+                  attributes: ["id", "judul"],
+                  include: [
+                      {
+                          model: PTModel,
+                          as: 'PT',
+                          attributes: ["namaPT"]
+                      },
+                      {
+                          model: JenisSoal,
+                          as: 'jenissoals',
+                          attributes: ["id", "namaJenis"],
+                          through: { attributes: [] }
+                      }
+                  ]
+              },
+              {
+                  model: UserModel,
+                  as: 'user',
+                  attributes: ["id", "name", "email"],
+                  include: [{
+                      model: calonKaryawan,
+                      as: 'calonkaryawan',
+                      attributes: ["alamat", "jenisKelamin", "pendidikanTerakhir", "jurusan"]
+                  }]
+              },
+              {
+                  model: Resume,
+                  as: 'Resume',
+                  attributes: ["id", "file_name", "predicted_category", "probability"]
+              },
+              {
+                  model: RiwayatPsikotes,
+                  as: 'riwayatpsikotes',
+                  attributes: ["id", "totalSkor", "createdAt"],
+                  include: [{
+                      model: JenisSoal,
+                      as: 'jenissoal',
+                      attributes: ["id", "namaJenis"]
+                  }]
+              }
+          ],
+          order: [["createdAt", "DESC"]]
+      });
+
+      if (!pelamarList?.length) {
+          return res.status(200).json({
+              message: "Tidak ada pelamar ditemukan",
+              data: {
+                  totalLowongan: 0,
+                  totalPelamar: 0,
+                  pelamar: []
+              }
+          });
+      }
+
+      // 2. Format response
+      const formattedData = pelamarList.map(lamaran => {
+          return {
+              id: lamaran.id,
+              status: lamaran.status,
+              isFinishTest: lamaran.isFinishTest,
+              tanggalMelamar: lamaran.createdAt,
+              pelamar: {
+                  id: lamaran.user?.id,
+                  name: lamaran.user?.name,
+                  email: lamaran.user?.email,
+                  alamat: lamaran.user?.calonkaryawan?.alamat,
+                  noTelepon: lamaran.user?.calonkaryawan?.noTelepon,
+                  jenisKelamin: lamaran.user?.calonkaryawan?.jenisKelamin,
+                  pendidikanTerakhir: lamaran.user?.calonkaryawan?.pendidikanTerakhir,
+                  jurusan: lamaran.user?.calonkaryawan?.jurusan
+              },
+              lowongan: {
+                  id: lamaran.lowongan?.id,
+                  judul: lamaran.lowongan?.judul,
+                  perusahaan: lamaran.lowongan?.PT?.namaPT,
+                  jenisTes: lamaran.lowongan?.jenissoals?.map(js => ({
+                      id: js.id,
+                      nama: js.namaJenis
+                  })) || []
+              },
+              resume: lamaran.Resume ? {
+                  id: lamaran.Resume.id,
+                  namaFile: lamaran.Resume.file_name,
+                  prediksiKategori: lamaran.Resume.predicted_category,
+                  probabilitas: lamaran.Resume.probability
+              } : null,
+              hasilTes: lamaran.riwayatpsikotes?.map(rt => ({
+                  id: rt.id,
+                  jenisTesId: rt.jenissoal?.id,
+                  jenisTes: rt.jenissoal?.namaJenis,
+                  skor: rt.totalSkor,
+                  tanggalTes: rt.createdAt
+              })) || []
+          };
+      });
+
+      // Hitung total lowongan unik
+      const uniqueLowonganIds = [...new Set(pelamarList.map(p => p.lowonganId))];
+
+      return res.status(200).json({
+          message: "Data pelamar berhasil diambil.",
+          data: {
+              totalLowongan: uniqueLowonganIds.length,
+              totalPelamar: pelamarList.length,
+              pelamar: formattedData
+          }
+      });
+
+  } catch (error) {
+      console.error("Error:", error);
+      return res.status(500).json({
+          message: "Terjadi kesalahan sistem",
+          error: error.message
+      });
+  }
+};
 
 //get data user berdasarkan lowongan
 export const getUsersByLowongan = async (req, res) => {

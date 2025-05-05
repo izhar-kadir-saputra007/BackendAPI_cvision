@@ -1,7 +1,7 @@
 import midtransClient from "midtrans-client";
 import UserModel from "../../../models/userModel.js";
 import TransaksiModel from "../../../models/transaksiModel.js";
-import sendConfirmationEmail from "../../../utils/emailSenderNotifPremium.js";
+import {sendConfirmationEmail} from "../../../utils/emailPayments.js";
 import dotenv from "dotenv";
 dotenv.config();
 

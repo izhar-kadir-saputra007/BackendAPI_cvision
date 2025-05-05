@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "setup": "mkdir -p uploads/fotoProfil uploads/cv"
   },
   "author": "",
   "license": "ISC",
@@ -26,6 +28,7 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.3",
     "nodemailer": "^6.10.0",
+    "pm2": "^6.0.5",
     "puppeteer": "^14.4.1",
     "puppeteer-core": "^23.6.1",
     "qrcode-terminal": "^0.12.0",

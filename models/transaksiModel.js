@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import db from "../config/dataBase.js";
 
 const TransaksiModel = db.define(
-  "transaction",
+  "transactions", // Using plural table name convention
   {
     id: {
       type: DataTypes.INTEGER,
@@ -12,7 +12,7 @@ const TransaksiModel = db.define(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      onDelete: "CASCADE", // Jika user dihapus, transaksinya juga terhapus
+      onDelete: "CASCADE",
     },
     orderId: {
       type: DataTypes.STRING,
@@ -24,21 +24,48 @@ const TransaksiModel = db.define(
       allowNull: false,
     },
     transactionStatus: {
-      type: DataTypes.ENUM("pending", "settlement", "failed", "expire", "cancel"),
+      type: DataTypes.ENUM('pending', 'settlement', 'capture', 'deny', 'cancel', 'expire'),
       allowNull: false,
-      defaultValue: "pending", // Default status transaksi
+      defaultValue: "pending",
     },
     paymentType: {
       type: DataTypes.STRING,
-      allowNull: true, // Metode pembayaran (misal: credit_card, bank_transfer)
+      allowNull: true,
     },
     transactionTime: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW, // Waktu transaksi
+      defaultValue: DataTypes.NOW,
+    },
+    vaNumber: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    bank: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    settlementTime: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    currency: {
+      type: DataTypes.STRING,
+      defaultValue: "IDR"
+    },
+    pdfUrl: {  // Changed from pdf_url to pdfUrl for consistency
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    metadata: {
+      type: DataTypes.JSON,
+      defaultValue: {}
     },
   },
-
+  {
+    tableName: 'transactions', // Explicit table name
+    timestamps: true // Enable createdAt and updatedAt
+  }
 );
 
 export default TransaksiModel;

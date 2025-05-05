@@ -61,7 +61,7 @@ router.get('/api/downloadPDF/:id', authenticate, unduhPDF);
 router.use("/api/predict", authenticate, predictRouter);
 
 //prediksi cv umum
-router.post("/api/predictCVUmum", upload.single("file"), predictCVUmum);
+router.post("/api/predictCVUmum", upload.single("file"), authenticate, predictCVUmum);
 router.get("/api/downloadCSV/:type", downloadCSV);
 
 export default router;

@@ -5,24 +5,45 @@ import {validateToken } from "../middleware/authenticate.js";
 import authenticateAdminPT from "../middleware/isAdminPT.js"
 import isAdmin from "../middleware/isAdmin.js"
 import isPremium from "../middleware/isPremium.js";
+import {uploadFotoProfilMiddleware} from "../middleware/uploadFotoProfil.js";
 
 import {createJenisSoalAdminMaster,createSoalPsikotesAdminMaster, getSoalPsikotesByJenisSoalId, getJenisSoalByUserId, submitBulkJawabanPsikotes, getTotalSkorUser} from "../controller/adminMaster/soalPsikotest.js"
 
 import { createJenisSoal, createSoalPsikotes, getAllJenisSoal,getAllJenisSoalWithSoal, deleteJenisSoal, getSoalByJenisSoal} from "../controller/rekrutmen/Admin.js/soalPsikotes.js";
 import { registerAdminPT, verifyEmail} from "../controller/rekrutmen/Admin.js/user.js";
 import { createLowongan, addJenisSoalToLowongan,getLowonganForAdminPT, getAllLowongan, getPelamarByPT, getUsersByLowongan, updateStatusLowongan,getLowonganById, deleteLowongan,generatePelamarReport,getAllPelamarReport, downloadlowonganLaporanExcel,downloadLaporanLowonganExcelPerLowongan } from "../controller/rekrutmen/Admin.js/lowongan.js";
-import { createPayment, handlePaymentNotification, checkPaymentStatus } from "../controller/rekrutmen/Admin.js/transaksi.js";
+import { createPayment, handlePaymentNotification, checkPaymentStatus, getTransactionStatus } from "../controller/rekrutmen/Admin.js/transaksi.js";
 
 import { getSoalPsikotesForCalonKaryawan,submitJawabanPsikotes } from "../controller/rekrutmen/calonKaryawan/soalPsokotest.js"
 import { applyToLowongan, getLamaranForUser, getJenisSoalByLamaranId  } from "../controller/rekrutmen/calonKaryawan/lamaran.js";
 import {createPremiumPayment} from "../controller/rekrutmen/calonKaryawan/isPremiumUser.js";
 import {uploadCV} from "../controller/rekrutmen/calonKaryawan/uploadCV.js";
-import  { getUserProfile, editProfile } from "../controller/rekrutmen/calonKaryawan/user.js";
+import  { getUserProfile, editProfile, uploadFotoProfil } from "../controller/rekrutmen/calonKaryawan/user.js";
 import router from "./index.js";
 
 const routers = express.Router();
 
 router.get("/api/validateToken", authenticate, validateToken);
+
+// Di file routes Anda
+router.get('/api/check-premium', authenticateAdminPT, async (req, res) => {
+    try {
+      res.json({
+        isAuthenticated: true,
+        isPremium: req.user.isPremium,
+        user: {
+          id: req.user.id,
+          name: req.user.name,
+          email: req.user.email
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        isAuthenticated: false,
+        message: 'Gagal memeriksa status autentikasi dan premium' 
+      });
+    }
+  });
 
 //admin master
 // Endpoint untuk membuat jenis soal oleh Admin master
@@ -37,7 +58,7 @@ routers.get('/api/getTotalSkorUserPremium',isPremium, getTotalSkorUser);
 // Endpoint untuk membuat jenis soal oleh Admin PT
 routers.post('/api/jenis-soal', authenticateAdminPT, createJenisSoal);
 routers.post('/api/soal-psikotes/:jenisSoalId', authenticateAdminPT, createSoalPsikotes);
-routers.get('/api/getAllJenisSoal', authenticateAdminPT, getAllJenisSoal);
+routers.get('/api/getAllJenisSoal', authenticateAdminPT,isPremium, getAllJenisSoal);
 routers.get('/api/getAllJenisSoalWithSoal', authenticateAdminPT, getAllJenisSoalWithSoal);
 routers.get('/api/getSoalByJenisSoalAdmin/:jenisSoalId', authenticateAdminPT, getSoalByJenisSoal);
 routers.delete('/api/deleteJenisSoal/:jenisSoalId', authenticateAdminPT, deleteJenisSoal);
@@ -72,7 +93,8 @@ routers.get('/api/getJenisSoalByLamaranId/:lamaranId', authenticate, getJenisSoa
 
 //profil user
 routers.get("/api/getUserProfile", authenticate, getUserProfile);
-routers.put("/api/editProfile", authenticate, editProfile);
+routers.put("/api/editProfile", authenticate, uploadFotoProfilMiddleware, editProfile);
+routers.post("/api/uploadFotoProfil", authenticate, uploadFotoProfilMiddleware, uploadFotoProfil);
 
 //upload file
 routers.post("/api/upload-cv/:lamaranId", upload.single("cv"), authenticate, uploadCV);
@@ -83,6 +105,7 @@ routers.post("/api/upload-cv/:lamaranId", upload.single("cv"), authenticate, upl
 routers.post("/api/create-payment", authenticateAdminPT, createPayment);
 routers.post("/api/midtrans-notification", handlePaymentNotification);
 routers.get("/api/checkPaymentStatus", checkPaymentStatus);
+routers.get('/api/transactions/:orderId', authenticate, getTransactionStatus);
 
 //isPremiun untuk calon karywan
 routers.post("/api/createPremiumUser", authenticate, createPremiumPayment);
